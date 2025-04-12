@@ -1,0 +1,29 @@
+{
+  "name": "create-woragis-app",
+  "version": "1.0.0",
+  "description": "CLI to scaffold woragis projects",
+  "main": "bin/index.js",
+  "bin": {
+    "create-woragis-app": "./bin/index.js"
+  },
+  "files": [
+    "bin",
+    "templates"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "create",
+    "template",
+    "woragis",
+    "scaffold",
+    "cli"
+  ],
+  "author": "woragis",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "dependencies": {
+    "minimist": "^1.2.8"
+  }
+}
