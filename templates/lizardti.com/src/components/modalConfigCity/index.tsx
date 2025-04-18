@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { City, Neighborhood } from '../../types/servicesType'
+import { City, Neighborhood } from '@/types/servicesType'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import Switch from '@mui/material/Switch'

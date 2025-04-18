@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Services } from '../../services/services'
-import { City, Plataforma } from '../../types/servicesType'
+import { Services } from '@/services/services'
+import { City, Plataforma } from '@/types/servicesType'
 import { useLoadingStore } from '../../store/loadingStore'
 import { useToastStore } from '../../store/toastStore'
 import { useAuthStore } from '../../store/userStore'

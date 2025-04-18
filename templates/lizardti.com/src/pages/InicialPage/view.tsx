@@ -6,13 +6,13 @@ import {
   ChevronLeftIcon,
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
-import logo from '../../assets/logo_lizard.png'
-import aciona from '../../assets/unnamed.png'
-import mondial from '../../assets/mondial.png'
-import juvo from '../../assets/logo_nova.png'
-import { Plataforma } from '../../types/servicesType'
+import logo from '@/assets/logo_lizard.png'
+import aciona from '@/assets/unnamed.png'
+import mondial from '@/assets/mondial.png'
+import juvo from '@/assets/logo_nova.png'
+import { Plataforma } from '@/types/servicesType'
 import { IconButton } from '@mui/material'
-import CityModal from '../../components/modalConfigCity'
+import CityModal from '@/components/modalConfigCity'
 
 export const InicialPageView = (props: ReturnType<typeof useInicialPage>) => {
   const [selectedPlatform, setSelectedPlatform] = useState<Plataforma | null>(

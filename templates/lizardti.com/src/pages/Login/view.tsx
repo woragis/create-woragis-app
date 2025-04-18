@@ -1,16 +1,15 @@
-import logo from "../../assets/logo_lizard.png"; // ✅ Importação correta da logo
-import { useLogin } from "./model";
+import logo from '@/assets/logo_lizard.png' // ✅ Importação correta da logo
+import { useLogin } from './model'
 
-type LoginViewProps = ReturnType<typeof useLogin>;
+type LoginViewProps = ReturnType<typeof useLogin>
 
 export const LoginView = (props: LoginViewProps) => {
-  const { register, handleSubmit, errors, onSubmit } = props;
+  const { register, handleSubmit, errors, onSubmit } = props
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900 px-4">
       {/* Card de Login */}
       <div className="w-full max-w-md rounded-lg bg-gray-800 p-8 shadow-xl">
-        
         {/* Logo Centralizada */}
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo" className="w-32" />
@@ -23,10 +22,12 @@ export const LoginView = (props: LoginViewProps) => {
               type="email"
               className="w-full mt-1 rounded-md bg-gray-700 px-4 py-2 text-white outline-none transition-all focus:ring-2 focus:ring-green-500"
               placeholder="Digite seu e-mail"
-              {...register('email')} 
+              {...register('email')}
             />
             {errors.email && (
-              <span className="text-sm text-red-500">{errors.email.message}</span>
+              <span className="text-sm text-red-500">
+                {errors.email.message}
+              </span>
             )}
           </div>
 
@@ -36,10 +37,12 @@ export const LoginView = (props: LoginViewProps) => {
               type="password"
               className="w-full mt-1 rounded-md bg-gray-700 px-4 py-2 text-white outline-none transition-all focus:ring-2 focus:ring-green-500"
               placeholder="Digite sua senha"
-              {...register('password')} 
+              {...register('password')}
             />
             {errors.password && (
-              <span className="text-sm text-red-500">{errors.password.message}</span>
+              <span className="text-sm text-red-500">
+                {errors.password.message}
+              </span>
             )}
           </div>
 
@@ -52,5 +55,5 @@ export const LoginView = (props: LoginViewProps) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
