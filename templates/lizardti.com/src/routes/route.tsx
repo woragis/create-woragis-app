@@ -10,8 +10,8 @@ import { defaultAcl, isAllowed, Roles } from './acl'
 import { AccessControl } from '../utils/accessControl'
 
 import * as Pages from '../pages'
-import { useAuthStore } from '../store/userStore'
-import { useToastStore } from '../store/toastStore'
+import { useUser } from '@/store/user/hooks'
+import { showToast } from '@/store/toast/actions'
 
 const routes = [
   {
@@ -28,8 +28,7 @@ const routes = [
 ]
 
 const AuthChecker: React.FC = () => {
-  const { state, dispatch } = useAuthStore()
-  const { dispatch: dispatchToast } = useToastStore()
+  const { isAuthenticated } = useUser
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -38,11 +37,11 @@ const AuthChecker: React.FC = () => {
     const currentRoute = routes.find(
       (route) => route.path === location.pathname
     )
-    if (currentRoute?.requiresAuth && !state.isAuthenticated) {
+    if (currentRoute?.requiresAuth && !isAuthenticated) {
       navigate('/')
-      dispatchToast.setOpenToast('error', 'Sua sessão expirou')
+      showToast('error', 'Sua sessão expirou')
     }
-  }, [state.isAuthenticated, location.pathname, navigate, dispatch])
+  }, [isAuthenticated, location.pathname, navigate])
 
   return null
 }
