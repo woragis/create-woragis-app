@@ -53,7 +53,7 @@ EOL
 
 # Cria e escreve no arquivo style.ts
 cat <<EOL > $STYLE_PATH
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 export const Container = styled.div\`
   display: flex;

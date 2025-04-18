@@ -1,4 +1,4 @@
-interface UserTokens {
+export interface UserTokens {
   token: string
   refreshToken: string
 }
@@ -9,4 +9,9 @@ export interface User {
   name: string
   status: string
   tokens: UserTokens
+}
+
+export interface UserState {
+  user: User | null
+  isAuthenticated: boolean
 }
