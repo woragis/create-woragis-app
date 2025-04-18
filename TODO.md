@@ -20,3 +20,13 @@
 - [ ] - Upgrade create_page script
   - [ ] - Adicionar nova pagina automaticamente no pages/index e no seu export
   - [ ] - Criar versao de components
+
+## LizardTi.com
+
+- [ ] - Remover variaveis .env
+- [ ] - Adicionar Telas de aviso e congelamento caso o .env nao tenha sido 'setado'
+- [ ] - Upgrade Packages
+  - [ ] - Styles (styled-components -> @emotion)
+  - [ ] - Router (react-router-dom -> @tanstack/react-router)
+  - [ ] - Store (zustand -> @tanstack/react-store)
+- [ ] - Adicionar Testes
