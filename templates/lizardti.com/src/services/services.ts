@@ -1,4 +1,4 @@
-import { Plataforma } from '../types/servicesType'
+import { Plataforma } from '@/types/servicesType'
 import api from './api'
 import { AxiosError } from 'axios'
 

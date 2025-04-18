@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios'
 import api from './api'
-import { User } from '../types/userType'
-import { useAuthStore } from '../store/userStore'
+import { User } from '@@/types/userType'
+import { useAuthStore } from '@/store/userStore'
 
 interface LoginSchema {
   email: string
