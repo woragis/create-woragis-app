@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Verifica se o nome da pasta foi passado como argumento
 if [ -z "$1" ]; then
@@ -24,9 +24,9 @@ import { use${NOME_DA_PASTA^} } from './model'
 import { ${NOME_DA_PASTA^}View } from './view'
 
 export const ${NOME_DA_PASTA^} = () => {
-  const model${NOME_DA_PASTA^} = use${NOME_DA_PASTA^}()
+  const model = use${NOME_DA_PASTA^}()
 
-  return <${NOME_DA_PASTA^}View {...model${NOME_DA_PASTA^}} />
+  return <${NOME_DA_PASTA^}View {...model} />
 }
 EOL
 
@@ -53,7 +53,7 @@ EOL
 
 # Cria e escreve no arquivo style.ts
 cat <<EOL > $STYLE_PATH
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 export const Container = styled.div\`
   display: flex;
