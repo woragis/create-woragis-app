@@ -1,6 +1,7 @@
 # Bin
 
 - [ ] - Adicionar Extras aos comandos
+- [ ] - Adicionar novas templates ao Bin
 
 # Extras
 
