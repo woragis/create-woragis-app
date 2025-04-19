@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { useAuthStore } from '../store/userStore'
 import { AxiosRequestConfig } from 'axios'
+import { logout } from '@/store/user/actions'
 
 const baseURL = import.meta.env.VITE_BACKEND_URL
 
@@ -66,9 +66,6 @@ const refreshAccessToken = async () => {
   logout()
 }
 
-export const logout = () => {
-  const { logOut } = useAuthStore.getState().dispatch
-  logOut()
-}
+export { logout }
 
 export default api

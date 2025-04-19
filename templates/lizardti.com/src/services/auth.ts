@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios'
 import api from './api'
-import { User } from '@@/types/userType'
-import { useAuthStore } from '@/store/userStore'
+import { User } from '@/store/user/types'
+import { useUser } from '@/store/user/hooks'
 
 interface LoginSchema {
   email: string
@@ -57,7 +57,7 @@ export const Auth = {
     data?: any
   }> => {
     try {
-      const { user } = useAuthStore.getState().state
+      const { user } = useUser()
       const response = await api.post('/auth/token/refresh', {
         refresh: user?.tokens.refreshToken
       })
