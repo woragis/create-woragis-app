@@ -8,6 +8,7 @@ import { showToast } from '@/store/toast/actions'
 import {
   createRootRoute,
   createRoute,
+  createRouter,
   redirect,
   useLocation,
   useNavigate
@@ -91,3 +92,7 @@ export const dynamicRoutes = customRoutes.map(
       }
     })
 )
+
+const routeTree = rootRoute.addChildren([loginRoute, ...dynamicRoutes])
+
+export const router = createRouter({ routeTree })
