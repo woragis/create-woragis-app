@@ -5,10 +5,22 @@
 
 # Extras
 
+- [ ] - Ajeitar Actions CI
+  - [ ] - React
+  - [ ] - Next
+  - [ ] - Svelte
+- [ ] - Ajeitar Actions Infra
+  - [ ] - React
+  - [ ] - Next
+  - [ ] - Svelte
+- [ ] - Ajeitar Terraform Infra
+  - [ ] - React
+  - [ ] - Next
+  - [ ] - Svelte
 - [ ] - Testar actions com terraform
-- [ ] - Dependendo de qual template eh escolhida
-  - [ ] - O project_type do actions automaticamente eh escolhido
-  - [ ] - O terraform certo eh escolhido (ex.: amplify->{next}, s3->{react,svelte})
+- [x] - Dependendo de qual template eh escolhida
+  - [x] - O project_type do actions automaticamente eh escolhido
+  - [x] - O terraform certo eh escolhido (ex.: amplify->{next}, s3->{react,svelte})
 
 # Templates
 
