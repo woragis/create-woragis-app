@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom'
 import { ReactNode } from 'react'
+import { Navigate } from '@tanstack/react-router'
 
 interface AccessControlProps {
   allowed?: boolean
@@ -8,7 +8,7 @@ interface AccessControlProps {
 
 const AccessControl = ({ allowed = false, children }: AccessControlProps) => {
   if (!allowed) {
-    return <Navigate to="/login" />
+    return <Navigate to={'/login'} />
   }
 
   return children
