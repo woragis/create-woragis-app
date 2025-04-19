@@ -15,8 +15,8 @@
 ## Thales
 
 - [ ] - Adicionar Testes
-- [ ] - Atualizar Store
-- [ ] - Atualizar Router
+- [x] - Atualizar Store
+- [x] - Atualizar Router
 - [ ] - Upgrade create_page script
   - [ ] - Adicionar nova pagina automaticamente no pages/index e no seu export
   - [ ] - Criar versao de components
@@ -25,8 +25,8 @@
 
 - [ ] - Remover variaveis .env
 - [ ] - Adicionar Telas de aviso e congelamento caso o .env nao tenha sido 'setado'
-- [ ] - Upgrade Packages
-  - [ ] - Styles (styled-components -> @emotion)
-  - [ ] - Router (react-router-dom -> @tanstack/react-router)
-  - [ ] - Store (zustand -> @tanstack/react-store)
+- [x] - Upgrade Packages
+  - [x] - Styles (styled-components -> @emotion)
+  - [x] - Router (react-router-dom -> @tanstack/react-router)
+  - [x] - Store (zustand -> @tanstack/react-store)
 - [ ] - Adicionar Testes
