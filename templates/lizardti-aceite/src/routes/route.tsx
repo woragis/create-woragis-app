@@ -9,7 +9,9 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Outlet,
   redirect,
+  RouterProvider,
   useLocation,
   useNavigate
 } from '@tanstack/react-router'
@@ -46,12 +48,17 @@ const AuthChecker: React.FC = () => {
     }
   }, [isAuthenticated, location.pathname, navigate])
 
-  return <NotAuthorized />
+  return null
 }
 
 // --- Root route
 export const rootRoute = createRootRoute({
-  component: () => <AuthChecker />
+  component: () => (
+    <>
+      <Outlet />
+      <AuthChecker />
+    </>
+  )
 })
 
 // --- Static login route
@@ -97,3 +104,8 @@ export const dynamicRoutes = customRoutes.map(
 const routeTree = rootRoute.addChildren([loginRoute, ...dynamicRoutes])
 
 export const router = createRouter({ routeTree })
+
+// --- AppRoutes with RouterProvider
+export const AppRoutes: React.FC = () => {
+  return <RouterProvider router={router} />
+}
