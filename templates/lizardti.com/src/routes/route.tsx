@@ -1,19 +1,20 @@
-import React, { useEffect } from 'react'
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-  useLocation
-} from 'react-router-dom'
+import { useEffect } from 'react'
 import { defaultAcl, isAllowed, Roles } from './acl'
-import { AccessControl } from '../utils/accessControl'
+import { AccessControl } from '@/utils/accessControl'
 
 import * as Pages from '../pages'
 import { useUser } from '@/store/user/hooks'
 import { showToast } from '@/store/toast/actions'
+import {
+  createRootRoute,
+  createRoute,
+  redirect,
+  useLocation,
+  useNavigate
+} from '@tanstack/react-router'
 
-const routes = [
+// --- Route definitions (same as your `customRoutes`)
+const customRoutes = [
   {
     path: '/inicial-page',
     element: Pages.InicialPage,
@@ -27,18 +28,18 @@ const routes = [
   }
 ]
 
+// --- AuthChecker component
 const AuthChecker: React.FC = () => {
-  const { isAuthenticated } = useUser
-
+  const { isAuthenticated } = useUser() // ✅ fix here
   const navigate = useNavigate()
   const location = useLocation()
 
   useEffect(() => {
-    const currentRoute = routes.find(
+    const currentRoute = customRoutes.find(
       (route) => route.path === location.pathname
     )
     if (currentRoute?.requiresAuth && !isAuthenticated) {
-      navigate('/')
+      navigate({ to: '/' })
       showToast('error', 'Sua sessão expirou')
     }
   }, [isAuthenticated, location.pathname, navigate])
@@ -46,32 +47,47 @@ const AuthChecker: React.FC = () => {
   return null
 }
 
-export const AppRoutes: React.FC = () => (
-  <Router>
-    <AuthChecker />
-    <Routes>
-      <Route path="/" element={<Pages.Login />} />
-      {routes.map(({ path, element: Element, requiresAuth, acl }) => (
-        <Route
-          key={path}
-          path={path}
-          element={
-            requiresAuth ? (
-              <AccessControl
-                allowed={isAllowed({
-                  path,
-                  acl,
-                  systemRole: 1
-                })}
-              >
-                <Element />
-              </AccessControl>
-            ) : (
-              <Element />
-            )
-          }
-        />
-      ))}
-    </Routes>
-  </Router>
+// --- Root route
+export const rootRoute = createRootRoute({
+  component: () => <AuthChecker />
+})
+
+// --- Static login route
+export const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Pages.Login
+})
+
+// --- Dynamic protected routes
+export const dynamicRoutes = customRoutes.map(
+  ({ path, element: Element, requiresAuth, acl }) =>
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path,
+      beforeLoad: () => {
+        const { isAuthenticated } = useUser() // ✅ fix here
+        if (!requiresAuth) return
+
+        if (!isAuthenticated) {
+          showToast('error', 'Sua sessão expirou')
+          throw redirect({ to: '/' })
+        }
+      },
+      component: () => {
+        const allowed = isAllowed({
+          path,
+          acl,
+          systemRole: 1 // can also be dynamic
+        })
+
+        return requiresAuth ? (
+          <AccessControl allowed={allowed}>
+            <Element />
+          </AccessControl>
+        ) : (
+          <Element />
+        )
+      }
+    })
 )
