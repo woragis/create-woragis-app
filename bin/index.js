@@ -2,8 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const minimist = require('minimist')
-const { input, select, confirm } = require('@inquirer/prompts')
+const { input, select, confirm, checkbox } = require('@inquirer/prompts')
 const chalk = require('chalk').default
 const ora = require('ora').default
 
@@ -28,94 +27,85 @@ const templateExtrasMap = {
 }
 
 async function run() {
-  const args = minimist(process.argv.slice(2), {
-    boolean: ['with-ci', 'with-infra'],
+  const projectName = await input({ message: 'Project name:' })
+  const projectPath = path.resolve(process.cwd(), projectName)
+
+  const selectedTemplate = await select({
+    message: 'Select a template:',
+    choices: Object.entries(aliasMap).map(([key, value]) => ({
+      name: key.charAt(0).toUpperCase() + key.slice(1),
+      value,
+      description: `Template for ${key}`,
+    })),
   })
 
-  // Get project name
-  const targetDir = args._[0] || (await input({ message: 'Project Name:' }))
-  const targetPath = path.resolve(process.cwd(), targetDir)
-
-  // Select template if not passed via --template
-  let template = args.template
-  if (!template) {
-    template = await select({
-      message: 'Select a template:',
-      choices: Object.entries(aliasMap).map(([k, v]) => ({
-        name: k.charAt(0).toUpperCase() + k.slice(1),
-        value: v,
-        description: `Template for ${k}`,
-      })),
-    })
-  }
-
-  template = aliasMap[template] || template
-  const extrasKey = templateExtrasMap[template]
-
-  const templateBasePath = path.join(__dirname, '..', 'templates', template)
+  const extrasKey = templateExtrasMap[selectedTemplate]
+  const templatePath = path.join(__dirname, '..', 'templates', selectedTemplate)
   const extrasBasePath = extrasKey
     ? path.join(__dirname, '..', 'extras', extrasKey)
     : null
 
-  if (!fs.existsSync(templateBasePath)) {
-    console.error(chalk.red(`❌ Template "${template}" not found.`))
+  if (!fs.existsSync(templatePath)) {
+    console.error(chalk.red(`❌ Template "${selectedTemplate}" not found.`))
     process.exit(1)
   }
 
-  const confirmUse = await confirm({
-    message: `Create "${chalk.cyan(targetDir)}" using template "${chalk.green(
-      template
+  const confirmed = await confirm({
+    message: `Create "${chalk.cyan(projectName)}" with "${chalk.green(
+      selectedTemplate
     )}"?`,
   })
-
-  if (!confirmUse) {
+  if (!confirmed) {
     console.log(chalk.yellow('Operation cancelled.'))
     return
   }
 
+  const extras = await checkbox({
+    message: 'Select additional features to include:',
+    choices: [
+      { name: 'CI (GitHub Actions)', value: 'ci' },
+      { name: 'Terraform Infrastructure', value: 'infra' },
+    ],
+  })
+
+  const includeCI = extras.includes('ci')
+  const includeInfra = extras.includes('infra')
+
   const spinner = ora('Creating project...').start()
 
   try {
-    fs.mkdirSync(targetPath, { recursive: true })
-    fs.cpSync(templateBasePath, targetPath, { recursive: true })
+    fs.mkdirSync(projectPath, { recursive: true })
+    fs.cpSync(templatePath, projectPath, { recursive: true })
 
-    if (
-      (args['with-ci'] ||
-        (await confirm({ message: 'Include CI configuration?' }))) &&
-      extrasBasePath
-    ) {
+    if (includeCI && extrasBasePath) {
       const ciPath = path.join(extrasBasePath, '.github')
       if (fs.existsSync(ciPath)) {
-        fs.cpSync(ciPath, path.join(targetPath, '.github'), { recursive: true })
-      } else {
-        console.warn(chalk.yellow(`⚠️  No CI found for extras "${extrasKey}"`))
-      }
-    }
-
-    if (
-      (args['with-infra'] ||
-        (await confirm({ message: 'Include Terraform infrastructure?' }))) &&
-      extrasBasePath
-    ) {
-      const infraPath = path.join(extrasBasePath, 'terraform')
-      if (fs.existsSync(infraPath)) {
-        fs.cpSync(infraPath, path.join(targetPath, 'terraform'), {
+        fs.cpSync(ciPath, path.join(projectPath, '.github'), {
           recursive: true,
         })
       } else {
         console.warn(
-          chalk.yellow(`⚠️  No Terraform found for extras "${extrasKey}"`)
+          chalk.yellow(`⚠️ No CI folder found for extras "${extrasKey}"`)
         )
       }
     }
 
-    spinner.succeed(
-      `✔ Created "${chalk.green(template)}" project at ${chalk.cyan(
-        targetPath
-      )}`
-    )
+    if (includeInfra && extrasBasePath) {
+      const infraPath = path.join(extrasBasePath, 'terraform')
+      if (fs.existsSync(infraPath)) {
+        fs.cpSync(infraPath, path.join(projectPath, 'terraform'), {
+          recursive: true,
+        })
+      } else {
+        console.warn(
+          chalk.yellow(`⚠️ No Terraform folder found for extras "${extrasKey}"`)
+        )
+      }
+    }
+
+    spinner.succeed(`✔ Project created at ${chalk.green(projectPath)}`)
   } catch (err) {
-    spinner.fail(chalk.red('Something went wrong: ' + err.message))
+    spinner.fail(chalk.red('Error: ' + err.message))
     process.exit(1)
   }
 }
