@@ -41,9 +41,7 @@ async function run() {
 
   const extrasKey = templateExtrasMap[selectedTemplate]
   const templatePath = path.join(__dirname, '..', 'templates', selectedTemplate)
-  const extrasBasePath = extrasKey
-    ? path.join(__dirname, '..', 'extras', extrasKey)
-    : null
+  const extrasBasePath = path.join(__dirname, '..', 'extras', extrasKey)
 
   if (!fs.existsSync(templatePath)) {
     console.error(chalk.red(`❌ Template "${selectedTemplate}" not found.`))
@@ -77,33 +75,69 @@ async function run() {
     fs.mkdirSync(projectPath, { recursive: true })
     fs.cpSync(templatePath, projectPath, { recursive: true })
 
-    if (includeCI && extrasBasePath) {
-      const ciPath = path.join(extrasBasePath, '.github')
-      if (fs.existsSync(ciPath)) {
-        fs.cpSync(ciPath, path.join(projectPath, '.github'), {
-          recursive: true,
-        })
-      } else {
-        console.warn(
-          chalk.yellow(`⚠️ No CI folder found for extras "${extrasKey}"`)
-        )
-      }
-    }
-
+    // Only copy Terraform if infra is selected
     if (includeInfra && extrasBasePath) {
-      const infraPath = path.join(extrasBasePath, 'terraform')
-      if (fs.existsSync(infraPath)) {
-        fs.cpSync(infraPath, path.join(projectPath, 'terraform'), {
+      const terraformPath = path.join(extrasBasePath, 'infra', 'terraform')
+
+      if (fs.existsSync(terraformPath)) {
+        fs.cpSync(terraformPath, path.join(projectPath, 'terraform'), {
           recursive: true,
         })
       } else {
         console.warn(
-          chalk.yellow(`⚠️ No Terraform folder found for extras "${extrasKey}"`)
+          chalk.yellow(
+            `⚠️ No Terraform folder found at "${terraformPath}" for extras "${extrasKey}"`
+          )
+        )
+      }
+
+      // Copy terraform.yml if CI is also selected
+      if (includeCI) {
+        const terraformWorkflowPath = path.join(
+          extrasBasePath,
+          'infra',
+          '.github',
+          'workflows',
+          'terraform.yml'
+        )
+        if (fs.existsSync(terraformWorkflowPath)) {
+          const workflowsPath = path.join(projectPath, '.github', 'workflows')
+          fs.mkdirSync(workflowsPath, { recursive: true })
+          fs.cpSync(
+            terraformWorkflowPath,
+            path.join(workflowsPath, 'terraform.yml')
+          )
+        }
+      }
+    }
+
+    // Only copy CI if ci is selected
+    if (includeCI && extrasBasePath) {
+      const ciPath = path.join(
+        extrasBasePath,
+        'ci',
+        '.github',
+        'workflows',
+        'ci.yml'
+      )
+
+      if (fs.existsSync(ciPath)) {
+        const workflowsPath = path.join(projectPath, '.github', 'workflows')
+        fs.mkdirSync(workflowsPath, { recursive: true })
+        fs.cpSync(ciPath, path.join(workflowsPath, 'ci.yml'))
+      } else {
+        console.warn(
+          chalk.yellow(
+            `⚠️ No CI file found at "${ciPath}" for extras "${extrasKey}"`
+          )
         )
       }
     }
 
-    spinner.succeed(`✔ Project created at ${chalk.green(projectPath)}`)
+    spinner.succeed(`Project created at ${chalk.green(projectPath)}`)
+    if (includeCI) console.log(chalk.green('✔ CI files added'))
+    if (includeInfra)
+      console.log(chalk.green('✔ Terraform infrastructure added'))
   } catch (err) {
     spinner.fail(chalk.red('Error: ' + err.message))
     process.exit(1)
