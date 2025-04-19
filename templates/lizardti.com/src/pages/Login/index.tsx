@@ -2,7 +2,7 @@ import { useLogin } from './model'
 import { LoginView } from './view'
 
 export const Login = () => {
-  const modelLogin = useLogin()
+  const model = useLogin()
 
-  return <LoginView {...modelLogin} />
+  return <LoginView {...model} />
 }

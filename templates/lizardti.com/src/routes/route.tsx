@@ -13,6 +13,7 @@ import {
   useLocation,
   useNavigate
 } from '@tanstack/react-router'
+import NotAuthorized from '@/pages/NotAuthorized'
 
 // --- Route definitions (same as your `customRoutes`)
 const customRoutes = [
@@ -45,7 +46,7 @@ const AuthChecker: React.FC = () => {
     }
   }, [isAuthenticated, location.pathname, navigate])
 
-  return null
+  return <NotAuthorized />
 }
 
 // --- Root route

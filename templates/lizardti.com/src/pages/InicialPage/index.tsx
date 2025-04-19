@@ -2,7 +2,7 @@ import { useInicialPage } from './model'
 import { InicialPageView } from './view'
 
 export const InicialPage = () => {
-  const modelInicialPage = useInicialPage()
+  const model = useInicialPage()
 
-  return <InicialPageView {...modelInicialPage} />
+  return <InicialPageView {...model} />
 }
