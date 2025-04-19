@@ -1,8 +1,9 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { Auth } from './auth'
-import { useAuthStore } from '../store/userStore'
 import { AxiosRequestConfig } from 'axios'
+import { useUser } from '../store/user/hooks'
+import { logout, setUser } from '../store/user/actions'
 
 const baseURL = import.meta.env.VITE_BACKEND_URL
 
@@ -52,7 +53,7 @@ api.interceptors.response.use(
       originalRequest._retry = true
       try {
         await refreshAccessToken()
-        const { user } = useAuthStore.getState().state
+        const { user } = useUser()
         if (user && user.tokens && user.tokens.access) {
           originalRequest.headers.Authorization = `Bearer ${user.tokens.access}`
         }
@@ -69,8 +70,7 @@ const refreshAccessToken = async () => {
   try {
     const response = await Auth.refreshToken()
     if (response.status === 200) {
-      const { user } = useAuthStore.getState().state
-      const { setUser } = useAuthStore.getState().dispatch
+      const { user } = useUser()
       if (user) {
         setUser({
           ...user,
@@ -91,9 +91,6 @@ const refreshAccessToken = async () => {
   }
 }
 
-const logout = () => {
-  const { logOut } = useAuthStore.getState().dispatch
-  logOut()
-}
+export { logout }
 
 export default api
