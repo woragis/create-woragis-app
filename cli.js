@@ -1,5 +1,6 @@
 const inquirer = require('@inquirer/prompts')
 const { default: chalk } = require('chalk')
+const { default: ora } = require('ora')
 
 async function main() {
   const { input, select, confirm } = inquirer
@@ -58,6 +59,10 @@ async function main() {
         'Creating ' + projectName + ' with ' + userChoice + ' template...'
       )
     )
+    const spinner = ora('Loading....').start()
+    setTimeout(() => {
+      spinner.succeed(chalk.green('Done!'))
+    }, 3000)
   }
 }
 
