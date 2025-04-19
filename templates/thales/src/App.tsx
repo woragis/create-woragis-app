@@ -3,8 +3,8 @@ import SimpleBackdrop from './components/backdrop'
 
 import 'react-toastify/dist/ReactToastify.css'
 import { AppRoutes } from './routes/route'
-import { GlobalStyle } from './styles/global'
-
+import { styles } from './styles/global'
+import { Global } from '@emotion/react'
 
 export default function App() {
   return (
@@ -12,7 +12,7 @@ export default function App() {
       <AppRoutes />
       <SimpleBackdrop />
       <ToastContainer />
-      <GlobalStyle />
+      <Global styles={styles} />
     </>
   )
 }
