@@ -5,7 +5,7 @@ import { useLoading } from '@/store/loading/hooks'
 import { setLoading } from '@/store/loading/actions'
 
 export default function SimpleBackdrop() {
-  const { loading } = useLoading
+  const { loading } = useLoading()
 
   return (
     <Backdrop
