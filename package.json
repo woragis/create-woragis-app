@@ -1,6 +1,6 @@
 {
   "name": "@woragis/create",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI to scaffold woragis projects",
   "main": "bin/index.js",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "files": [
     "bin",
-    "templates"
+    "templates",
+    "etxras"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
