@@ -155,7 +155,7 @@ export const InicialPageView = (props: ReturnType<typeof useInicialPage>) => {
 
         <div className="mt-auto pt-6 border-t border-gray-800">
           <a
-            onClick={() => props.dispatchUser.logOut()}
+            onClick={() => props.logout()}
             className="flex items-center gap-4 px-4 py-3 text-gray-300 rounded-xl
               hover:bg-gray-800 transition-all duration-300 cursor-pointer"
           >
@@ -389,7 +389,7 @@ export const InicialPageView = (props: ReturnType<typeof useInicialPage>) => {
         ) : (
           <>
             <h1 className="text-4xl font-bold mb-8 text-gray-900">
-              Olá, {props.stateUser.user?.name}! 👋
+              Olá, {props.user?.name}! 👋
             </h1>
 
             <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200">

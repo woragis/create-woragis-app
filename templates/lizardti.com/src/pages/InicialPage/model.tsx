@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Services } from '@/services/services'
 import { City, Plataforma } from '@/types/servicesType'
-import { useLoadingStore } from '../../store/loadingStore'
-import { useToastStore } from '../../store/toastStore'
-import { useAuthStore } from '../../store/userStore'
+import { setLoading } from '@/store/loading/actions'
+import { showToast } from '@/store/toast/actions'
+import { logout } from '@/store/user/actions'
+import { useUser } from '@/store/user/hooks'
 
 export const useInicialPage = () => {
-  const { dispatch: dispatchLoading } = useLoadingStore()
-  const { dispatch: dispatchToast } = useToastStore()
-  const { dispatch: dispatchUser, state: stateUser } = useAuthStore()
-
   const [services, setServices] = useState<Plataforma[]>([])
   const [citySelectedForConfig, setCitySelectedForConfig] = useState<City>()
   const [modalConfigCity, setModalConfigCity] = useState<boolean>(false)
@@ -19,9 +16,9 @@ export const useInicialPage = () => {
   }, [])
 
   const handleGetServices = async () => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.getServices()
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       setServices(response.data)
@@ -41,17 +38,17 @@ export const useInicialPage = () => {
     cityName: string,
     value: boolean
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.updateStatusCity(
       plataforma,
       cityName,
       value
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
 
@@ -61,18 +58,18 @@ export const useInicialPage = () => {
     neighborhoodName: string,
     value: boolean
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.toggleNeighborhoodStatus(
       plataforma,
       cityName,
       neighborhoodName,
       value
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
 
@@ -82,22 +79,22 @@ export const useInicialPage = () => {
     neighborhoodName: string,
     value: boolean
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.createNeighborhood(
       plataforma,
       cityName,
       neighborhoodName,
       value
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 201) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
 
     if (response.status === 400) {
-      dispatchToast.setOpenToast('error', response.message)
+      showToast('error', response.message)
     }
   }
 
@@ -106,17 +103,17 @@ export const useInicialPage = () => {
     cityName: string,
     value: boolean
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.updateStatusCityEmergency(
       plataforma,
       cityName,
       value
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
 
@@ -125,17 +122,17 @@ export const useInicialPage = () => {
     value: boolean,
     serviceName: string
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.updateStatusService(
       plataforma,
       serviceName,
       value
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
 
@@ -145,18 +142,18 @@ export const useInicialPage = () => {
     value: string,
     field: string
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.updateTimeCity(
       plataforma,
       cityName,
       value,
       field
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
 
@@ -169,18 +166,18 @@ export const useInicialPage = () => {
     const nameField =
       type === 'start' ? 'emergencyStartTime' : 'emergencyEndTime'
 
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.updateTimeCityEmergency(
       plataforma,
       citySelectedForConfig.city,
       value,
       nameField
     )
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
 
@@ -188,23 +185,25 @@ export const useInicialPage = () => {
     plataforma: string,
     value: boolean
   ) => {
-    dispatchLoading.setLoading(true)
+    setLoading(true)
     const response = await Services.updateAllStatusCity(plataforma, value)
-    dispatchLoading.setLoading(false)
+    setLoading(false)
 
     if (response.status === 200) {
       handleGetServices()
-      dispatchToast.setOpenToast('success', response.message)
+      showToast('success', response.message)
     }
   }
+
+  const { user } = useUser()
 
   return {
     services,
     handleUpdateStatusCity,
     handleUpdateStatusService,
     handleUpdateTimeCity,
-    dispatchUser,
-    stateUser,
+    logout,
+    user,
     handleUpdateAllStatusCity,
     handleSelectCityForConfig,
     handleControlModalConfigCity,
