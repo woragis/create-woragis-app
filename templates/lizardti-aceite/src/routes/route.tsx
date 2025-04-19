@@ -15,7 +15,6 @@ import {
   useLocation,
   useNavigate
 } from '@tanstack/react-router'
-import NotAuthorized from '@/pages/NotAuthorized'
 
 // --- Route definitions (same as your `customRoutes`)
 const customRoutes = [
