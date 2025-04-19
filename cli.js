@@ -1,4 +1,5 @@
 const inquirer = require('@inquirer/prompts')
+const { default: chalk } = require('chalk')
 
 async function main() {
   const { input, select, confirm } = inquirer
@@ -53,7 +54,9 @@ async function main() {
     return
   } else {
     console.log(
-      'Creating ' + projectName + ' with ' + userChoice + ' template...'
+      chalk.green(
+        'Creating ' + projectName + ' with ' + userChoice + ' template...'
+      )
     )
   }
 }
