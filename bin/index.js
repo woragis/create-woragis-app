@@ -34,13 +34,7 @@ const templateExtrasMap = {
 template = aliasMap[template] || template
 
 const extrasKey = templateExtrasMap[template]
-const templateBasePath = path.join(
-  __dirname,
-  '..',
-  'templates',
-  template,
-  'base'
-)
+const templateBasePath = path.join(__dirname, '..', 'templates', template)
 const extrasBasePath = extrasKey
   ? path.join(__dirname, '..', 'extras', extrasKey)
   : null
