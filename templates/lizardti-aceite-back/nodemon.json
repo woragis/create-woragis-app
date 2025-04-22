@@ -1,0 +1,5 @@
+{
+  "watch": ["src", "handler.js", "serverless.yml"],
+  "ext": "js,yml",
+  "exec": "sls offline start"
+}

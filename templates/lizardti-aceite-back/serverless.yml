@@ -1,0 +1,69 @@
+org: thales123
+app: ${env:TABLE_NAME}-api
+service: ${env:TABLE_NAME}-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedHeaders:
+        - Content-Type
+        - X-Amz-Date
+        - Authorization
+        - X-Api-Key
+        - X-Amz-Security-Token
+        - X-Amz-User-Agent
+      allowedMethods:
+        - OPTIONS
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        
+  environment:
+    DYNAMODB_TABLE_SERVICES: ${env:TABLE_NAME}
+    USER_POOL_ID: ${env:USER_POOL_ID}
+    CLIENT_ID: ${env:CLIENT_ID}
+    CLIENT_SECRET: ${env:CLIENT_SECRET}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:us-east-1:${aws:accountId}:table/${env:TABLE_NAME}
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource:
+        - arn:aws:dynamodb:us-east-1:${aws:accountId}:table/${env:TABLE_NAME}
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminGetUser
+        - cognito-idp:AdminInitiateAuth
+        - cognito-idp:AdminCreateUser
+      Resource:
+        - arn:aws:cognito-idp:us-east-1:${aws:accountId}:userpool/${env:USER_POOL_ID}
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    cors: true  
+
+functions:
+  app:
+    handler: src/handler.handler
+    timeout: 30
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
