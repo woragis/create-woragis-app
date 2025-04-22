@@ -13,7 +13,8 @@ const aliasMap = {
   'next-redux': 'next-redux',
   svelte: 'svelte',
   thales: 'thales',
-  'lizardti-aceite': 'lizardti-aceite',
+  'Lizardti Aceite Frontend': 'lizardti-aceite-front',
+  'Lizardti Aceite Backend': 'lizardti-aceite-back',
 }
 
 const templateExtrasMap = {
@@ -23,7 +24,8 @@ const templateExtrasMap = {
   'next-redux': 'next',
   svelte: 'svelte',
   thales: 'react',
-  'lizardti-aceite': 'react',
+  'lizardti-aceite-front': 'react',
+  'lizardti-aceite-back': 'lizardti-aceite-back',
 }
 
 async function run() {
