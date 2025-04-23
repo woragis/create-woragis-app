@@ -1,6 +1,6 @@
 {
   "name": "@woragis/create",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "CLI to scaffold woragis projects",
   "main": "bin/index.js",
   "bin": {
