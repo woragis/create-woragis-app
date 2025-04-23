@@ -14,6 +14,7 @@ const colors = {
   error: chalk.redBright,
   info: chalk.blueBright,
   highlight: chalk.bold.white,
+  selected: chalk.magentaBright,
 }
 
 // Custom spinner style
@@ -22,28 +23,25 @@ const spinnerStyle = {
   color: 'cyan',
 }
 
-// Alias and template mappings
-const aliasMap = {
-  react: 'react-tanstack',
-  next: 'next-tanstack',
-  'react-redux': 'react-redux',
-  'next-redux': 'next-redux',
-  svelte: 'svelte',
-  thales: 'thales',
-  'lizardti-aceite-front': 'lizardti-aceite-front',
-  'lizardti-aceite-back': 'lizardti-aceite-back',
-}
-
-const templateExtrasMap = {
-  'react-tanstack': 'react',
-  'next-tanstack': 'next',
-  'react-redux': 'react',
-  'next-redux': 'next',
-  svelte: 'svelte',
-  thales: 'react',
-  'lizardti-aceite-front': 'react',
-  'lizardti-aceite-back': 'lizardti-aceite-back',
-}
+// Templates configuration with name, value, and extras
+const templates = [
+  { name: 'React', value: 'react-tanstack', extras: 'react' },
+  { name: 'Next', value: 'next-tanstack', extras: 'next' },
+  { name: 'React Redux', value: 'react-redux', extras: 'react' },
+  { name: 'Next Redux', value: 'next-redux', extras: 'next' },
+  { name: 'Svelte', value: 'svelte', extras: 'svelte' },
+  { name: 'Thales', value: 'thales', extras: 'react' },
+  {
+    name: 'Lizardti Aceite Frontend',
+    value: 'lizardti-aceite-front',
+    extras: 'react',
+  },
+  {
+    name: 'Lizardti Aceite Backend',
+    value: 'lizardti-aceite-back',
+    extras: 'lizardti-aceite-back',
+  },
+]
 
 // Welcome banner
 console.log(
@@ -68,23 +66,25 @@ async function run() {
   })
   const projectPath = path.resolve(process.cwd(), projectName)
 
-  // Template selection
+  // Template selection with custom selected item color
   const selectedTemplate = await select({
     message: colors.primary('🛠️ Select a template:'),
-    choices: Object.entries(aliasMap).map(([key, value]) => ({
-      name: colors.info(key.charAt(0).toUpperCase() + key.slice(1)),
-      value,
-      description: colors.highlight(`Create a ${key} project`),
+    choices: templates.map((template) => ({
+      name: colors.info(template.name),
+      value: template.value,
+      description: colors.highlight(`Create a ${template.name} project`),
     })),
+    format: (choice) => colors.selected(choice),
   })
 
-  // Feature selection
+  // Feature selection with custom selected item color
   const extras = await checkbox({
     message: colors.primary('🔧 Select additional features:'),
     choices: [
       { name: colors.info('CI (GitHub Actions)'), value: 'ci' },
       { name: colors.info('Terraform Infrastructure'), value: 'infra' },
     ],
+    format: (choices) => choices.map((choice) => colors.selected(choice)),
   })
 
   // Confirmation
@@ -101,8 +101,11 @@ async function run() {
     return
   }
 
-  // Setup paths
-  const extrasKey = templateExtrasMap[selectedTemplate]
+  // Find the selected template's extras
+  const selectedTemplateConfig = templates.find(
+    (t) => t.value === selectedTemplate
+  )
+  const extrasKey = selectedTemplateConfig.extras
   const templatePath = path.join(__dirname, '..', 'templates', selectedTemplate)
   const extrasBasePath = path.join(__dirname, '..', 'extras', extrasKey)
 
