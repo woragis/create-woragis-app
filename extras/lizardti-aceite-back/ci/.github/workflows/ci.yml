@@ -12,46 +12,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: ⚙️ Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '23.9'
-
-      - name: 📦 Install Dependencies
-        run: npm ci
-
-      - name: ☁️ Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: 🧩 Deploy via Custom Action
+        uses: woragis/serverless@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: 🚀 Deploy with Serverless
-        id: deploy
-        env:
-          TABLE_NAME: ${{ secrets.TABLE_NAME }}
-          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-        run: |
-          npx serverless deploy > serverless-output.txt 2>&1
-          cat serverless-output.txt
-          endpoint=$(grep -o 'https://[a-zA-Z0-9\-\.]*\.execute-api\.[a-zA-Z0-9\-]*\.amazonaws.com/' serverless-output.txt | head -n 30)
-          echo "API_URL=$endpoint" >> $GITHUB_OUTPUT
-          echo "API_URL=$endpoint" >> output-artifact.txt
-
-      - name: 📢 Print API URL
-        run: echo "Deployed to ${{ steps.deploy.outputs.API_URL }}"
-
-      - name: 📦 Upload Output as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: serverless-deployment-log
-          path: output-artifact.txt
+          table-name: ${{ secrets.TABLE_NAME }}
+          user-pool-id: ${{ secrets.USER_POOL_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          serverless-access-key: ${{ secrets.SERVERLESS_ACCESS_KEY }}
