@@ -1,72 +1,41 @@
-name: Deploy Infra and Serverless App
+name: Deploy Serverless App
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    outputs:
+      user_pool_id: ${{ steps.deploy-cognito.outputs.user_pool_id }}
+      client_id: ${{ steps.deploy-cognito.outputs.client_id }}
     steps:
-      - name: Use Custom Serverless Deploy Action
-        uses: woragis/serverless-deploy-action@v1
+      - name: Deploy Cognito
+        id: deploy-cognito
+        uses: woragis/terraform-cognito@v1
         with:
-          serverless_token: ${{ secrets.SERVERLESS_ACCESS_TOKEN }}
-          org: my-org-name
-          app: my-app-name
-  # terraform:
-  #   name: ⚙️ Terraform Infra
-  #   runs-on: ubuntu-latest
+          terraform-dir: ./terraform
+          aws-region: us-east-1
+          cognito-name: u
+          cognito-user-pool: u
 
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-
-  #   defaults:
-  #     run:
-  #       working-directory: terraform
-
-  #   steps:
-  #     - uses: actions/checkout@v3
-
-  #     - name: Setup Terraform
-  #       uses: hashicorp/setup-terraform@v3
-  #       with:
-  #         terraform_version: 1.5.7
-
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: us-east-1
-
-  #     - name: Terraform Init & Apply
-  #       run: |
-  #         terraform init
-  #         terraform apply -auto-approve
-
-  # serverless:
-  #   name: 🚀 Deploy Lambda App
-  #   runs-on: ubuntu-latest
-  #   needs: terraform
-
-  #   steps:
-  #     - uses: actions/checkout@v3
-
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: '18'
-
-  #     - name: Install Dependencies
-  #       run: npm ci
-
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: us-east-1
-
-  #     - name: Deploy with Serverless
-  #       run: npx serverless deploy
+  serverless:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: 🧩 Deploy via Custom Action
+        uses: woragis/serverless@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          table-name: ${{ secrets.TABLE_NAME }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          serverless-access-key: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+          user-pool-id: ${{ needs.deploy.outputs.user_pool_id }} # Get the output from the 'deploy' job
+          client-id: ${{ needs.deploy.outputs.client_id }} # Get the output from the 'deploy' job
