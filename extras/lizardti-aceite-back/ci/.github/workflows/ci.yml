@@ -14,7 +14,7 @@ jobs:
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '23.9'
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -27,4 +27,23 @@ jobs:
           aws-region: us-east-1
 
       - name: 🚀 Deploy with Serverless
-        run: npx serverless deploy
+        id: deploy
+        env:
+          TABLE_NAME: ${{ secrets.TABLE_NAME }}
+          USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        run: |
+          npx serverless deploy > serverless-output.txt
+          cat serverless-output.txt
+          endpoint=$(grep -o 'https.*execute-api.*' serverless-output.txt | head -n 1)
+          echo "API_URL=$endpoint" >> $GITHUB_OUTPUT
+
+      - name: 📢 Print API URL
+        run: echo "Deployed to ${{ steps.deploy.outputs.API_URL }}"
+
+      - name: 📦 Upload Output as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: serverless-deployment-log
+          path: serverless-output.txt
