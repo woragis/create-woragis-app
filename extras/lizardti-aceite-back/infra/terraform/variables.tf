@@ -1,22 +1,11 @@
 variable "aws_region" {
-  default = "us-east-1"
-}
-
-variable "domain_name" {
-  description = "Domain for the React app"
+  description = "The AWS region to deploy the resources."
   type        = string
+  default     = "us-east-1"
 }
 
-variable "subdomain" {
-  description = "Subdomain for the React app"
+variable "user_pool_name" {
+  description = "The name of the Cognito User Pool."
   type        = string
-}
-
-variable "bucket_name" {
-  description = "S3 bucket name for the React build"
-  type        = string
-}
-
-variable "tags" {
-  type    = map(string)
+  default     = "my-user-pool"
 }
