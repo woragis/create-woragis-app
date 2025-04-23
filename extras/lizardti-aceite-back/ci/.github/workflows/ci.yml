@@ -1,6 +1,12 @@
 name: Deploy Serverless App
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -33,17 +39,19 @@ jobs:
           USER_POOL_ID: ${{ secrets.USER_POOL_ID }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           npx serverless deploy > serverless-output.txt
           cat serverless-output.txt
-          endpoint=$(grep -o 'https.*execute-api.*' serverless-output.txt | head -n 1)
+          endpoint=$(grep -o 'https://[a-zA-Z0-9\-\.]*\.execute-api\.[a-zA-Z0-9\-]*\.amazonaws.com/.*' serverless-output.txt | head -n 30)
           echo "API_URL=$endpoint" >> $GITHUB_OUTPUT
+          echo "API_URL=$endpoint" >> serverless-output.txt
 
       - name: 📢 Print API URL
         run: echo "Deployed to ${{ steps.deploy.outputs.API_URL }}"
 
       - name: 📦 Upload Output as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: serverless-deployment-log
           path: serverless-output.txt
