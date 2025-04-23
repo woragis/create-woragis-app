@@ -1,9 +1,14 @@
-module "static_site" {
-  source = "git::https://github.com/woragis/terraform-static.git//?ref=v1"
+module "cognito" {
+  source = "git::https://github.com/woragis/terraform-cognito.git//?ref=v1"
+
+  aws_region        = var.aws_region
+  cognito_name      = var.cognito_name
+  cognito_user_pool = var.cognito_user_pool
+}
+
+module "serverless" {
+  source = "git::https://github.com/woragis/terraform-serverless.git//?ref=v1"
 
   aws_region  = var.aws_region
-  domain_name = var.domain_name
-  subdomain   = var.subdomain
-  bucket_name = var.bucket_name
-  tags        = var.tags
+  server_name = var.server_name
 }
