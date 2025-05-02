@@ -15,6 +15,7 @@ import {
   useLocation,
   useNavigate
 } from '@tanstack/react-router'
+import { getUserFromCookies } from '@/store/user/store'
 
 // --- Route definitions (same as your `customRoutes`)
 const customRoutes = [
@@ -74,10 +75,10 @@ export const dynamicRoutes = customRoutes.map(
       getParentRoute: () => rootRoute,
       path,
       beforeLoad: () => {
-        const { isAuthenticated } = useUser() // ✅ fix here
+        const user = getUserFromCookies()
         if (!requiresAuth) return
 
-        if (!isAuthenticated) {
+        if (!user) {
           showToast('error', 'Sua sessão expirou')
           throw redirect({ to: '/' })
         }
