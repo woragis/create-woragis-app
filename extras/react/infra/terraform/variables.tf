@@ -1,5 +1,17 @@
+variable "project_name" {
+  description = "Name of the App"
+  type        = string
+}
+
+variable "project_type" {
+  description = "Type of the App"
+  type        = string
+}
+
 variable "aws_region" {
-  default = "us-east-1"
+  description = "AWS region for deployment"
+  type        = string
+  default     = "us-east-1"
 }
 
 variable "domain_name" {
@@ -10,6 +22,7 @@ variable "domain_name" {
 variable "subdomain" {
   description = "Subdomain for the React app"
   type        = string
+  default     = "www"
 }
 
 variable "bucket_name" {
@@ -17,6 +30,14 @@ variable "bucket_name" {
   type        = string
 }
 
+variable "create_zone" {
+  description = "Flag to create Route 53 hosted zone"
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
-  type    = map(string)
+  description = "Tags for the resources"
+  type        = map(string)
+  default     = {}
 }
