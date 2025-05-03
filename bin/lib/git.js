@@ -9,7 +9,7 @@ function initGitRepo(projectPath) {
       cwd: projectPath,
       stdio: 'ignore',
     })
-    console.log(colors.success('✅ Git repository initialized!'))
+    console.log(colors.success('✔ Git repository initialized!'))
   } catch (err) {
     console.error(
       colors.error('❌ Failed to initialize Git repository:'),
