@@ -21,6 +21,7 @@ const baseQuestions = [
     choices: templates.map((template) => ({
       title: colors.info(template.name),
       value: template.value,
+      extras: template.extras,
     })),
   },
 ]
