@@ -125,7 +125,7 @@ async function run() {
     spinner.text = colors.primary('📂 Creating project directory...')
     fs.mkdirSync(projectPath, { recursive: true })
     spinner.text = colors.primary('📦 Copying template files...')
-    fs.cpSync(templatePath, projectPath, { recursive: true })
+    copyRecursiveSync(templatePath, projectPath)
 
     const includeCI = extras.includes('ci')
     const includeInfra = extras.includes('infra')
@@ -135,7 +135,7 @@ async function run() {
       const terraformPath = path.join(extrasBasePath, 'infra', 'terraform')
       if (fs.existsSync(terraformPath)) {
         spinner.text = colors.primary('🏗️ Adding Terraform infrastructure...')
-        fs.cpSync(terraformPath, path.join(projectPath, 'terraform'), {
+        copyRecursiveSync(terraformPath, path.join(projectPath, 'terraform'), {
           recursive: true,
         })
       } else {
@@ -206,6 +206,23 @@ async function run() {
   } catch (err) {
     spinner.fail(colors.error(`❌ Error: ${err.message}`))
     process.exit(1)
+  }
+}
+
+function copyRecursiveSync(src, dest) {
+  const entries = fs.readdirSync(src, { withFileTypes: true })
+
+  fs.mkdirSync(dest, { recursive: true })
+
+  for (let entry of entries) {
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+
+    if (entry.isDirectory()) {
+      copyRecursiveSync(srcPath, destPath)
+    } else {
+      fs.copyFileSync(srcPath, destPath)
+    }
   }
 }
 
