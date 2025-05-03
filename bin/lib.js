@@ -1,14 +1,13 @@
 const fs = require('fs')
 const path = require('path')
 
-function copyRecursiveDynamic(src, dest, variables) {
-  const entries = fs.readdirSync(src, { withFileTypes: true })
-  fs.mkdirSync(dest, { recursive: true })
+function copyRecursiveDynamic({ templatePath, outputPath, variables }) {
+  const entries = fs.readdirSync(templatePath, { withFileTypes: true })
+  fs.mkdirSync(outputPath, { recursive: true })
 
   for (const entry of entries) {
-    const srcPath = path.join(src, entry.name)
+    const srcPath = path.join(templatePath, entry.name)
 
-    // Replace placeholders in file/folder names (e.g., __projectName__)
     const replacedName = entry.name.replace(
       /__([a-zA-Z0-9_]+)__/g,
       (_, key) => variables[key] || key
@@ -17,10 +16,14 @@ function copyRecursiveDynamic(src, dest, variables) {
     const finalName = isTemplateFile
       ? replacedName.replace(/\.tmpl$/, '')
       : replacedName
-    const destPath = path.join(dest, finalName)
+    const destPath = path.join(outputPath, finalName)
 
     if (entry.isDirectory()) {
-      copyRecursiveDynamic(srcPath, destPath, variables)
+      copyRecursiveDynamic({
+        templatePath: srcPath,
+        outputPath: destPath,
+        variables,
+      })
     } else {
       if (isTemplateFile) {
         let content = fs.readFileSync(srcPath, 'utf8')
@@ -53,6 +56,7 @@ function copyRecursiveStatic(src, dest) {
 }
 
 function copyTemplate({ templatePath, outputPath, variables = {} }) {
+  console.log('Variables: ', variables)
   const staticPath = path.join(templatePath, 'static')
   const dynamicPath = path.join(templatePath, 'dynamic')
 
@@ -61,8 +65,8 @@ function copyTemplate({ templatePath, outputPath, variables = {} }) {
   }
 
   if (fs.existsSync(dynamicPath)) {
-    copyRecursiveDynamic(dynamicPath, outputPath, variables)
+    copyRecursiveDynamic({ templatePath: dynamicPath, outputPath, variables })
   }
 }
 
-module.exports = { copyTemplate }
+module.exports = { copyTemplate, copyRecursiveDynamic }

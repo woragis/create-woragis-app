@@ -12,7 +12,7 @@ const {
   confirmQuestion,
 } = require('./questions')
 const colors = require('./colors')
-const { copyTemplate } = require('./lib')
+const { copyTemplate, copyRecursiveDynamic } = require('./lib')
 const templates = require('./templates')
 const ora = require('ora').default
 
@@ -107,13 +107,17 @@ async function run() {
     const includeInfra = extras.includes('infra')
 
     // Step 2: Add Terraform infrastructure
-    if (includeInfra && extrasBasePath) {
-      const terraformPath = path.join(extrasBasePath, 'infra', 'terraform')
-      if (fs.existsSync(terraformPath)) {
+    if (includeInfra && fs.existsSync(extrasBasePath)) {
+      console.log('extrasBasePath', extrasBasePath)
+
+      const infraPath = path.join(extrasBasePath, 'infra', 'terraform')
+
+      if (fs.existsSync(infraPath)) {
         spinner.text = colors.primary('🏗️ Adding Terraform infrastructure...')
-        copyTemplate({
-          terraformPath,
+        copyRecursiveDynamic({
+          templatePath: infraPath,
           outputPath: path.join(projectPath, 'terraform'),
+          variables,
         })
       } else {
         spinner.warn(
@@ -127,37 +131,31 @@ async function run() {
           extrasBasePath,
           'infra',
           '.github',
-          'workflows',
-          'terraform.yml'
+          'workflows'
         )
         if (fs.existsSync(terraformWorkflowPath)) {
           spinner.text = colors.primary('🔄 Adding Terraform CI workflow...')
           const workflowsPath = path.join(projectPath, '.github', 'workflows')
           fs.mkdirSync(workflowsPath, { recursive: true })
-          fs.cpSync(
-            terraformWorkflowPath,
-            path.join(workflowsPath, 'terraform.yml')
-          )
+          copyRecursiveDynamic({
+            templatePath: terraformWorkflowPath,
+            outputPath: workflowsPath,
+            variables,
+          })
         }
       }
     }
 
     // Step 3: Add CI workflow
-    if (includeCI && extrasBasePath) {
-      const ciPath = path.join(
-        extrasBasePath,
-        'ci',
-        '.github',
-        'workflows',
-        'ci.yml'
-      )
+    if (includeCI && fs.existsSync(extrasBasePath)) {
+      const ciPath = path.join(extrasBasePath, 'ci', '.github', 'workflows')
       if (fs.existsSync(ciPath)) {
         spinner.text = colors.primary('🔧 Adding CI workflow...')
         const workflowsPath = path.join(projectPath, '.github', 'workflows')
         fs.mkdirSync(workflowsPath, { recursive: true })
-        copyTemplate({
-          ciPath,
-          outputPath: path.join(workflowsPath, 'ci.yml'),
+        copyRecursiveDynamic({
+          templatePath: ciPath,
+          outputPath: workflowsPath,
           variables,
         })
       } else {
@@ -185,7 +183,7 @@ async function run() {
       `)
     )
   } catch (err) {
-    spinner.fail(colors.error(`❌ Error: ${err.message}`))
+    spinner.fail(colors.error(`❌ Error: ${err.message} ${err.stack}`))
     process.exit(1)
   }
 }
