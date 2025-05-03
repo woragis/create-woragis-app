@@ -10,10 +10,10 @@ const {
   infraQuestions,
   ciQuestions,
   confirmQuestion,
-} = require('./questions')
-const colors = require('./colors')
-const { copyTemplate, copyRecursiveDynamic } = require('./lib')
-const templates = require('./templates')
+} = require('./lib/questions')
+const colors = require('./lib/colors')
+const { copyTemplate, copyRecursiveDynamic } = require('./lib/copy')
+const templates = require('./lib/templates')
 const ora = require('ora').default
 
 // Custom spinner style

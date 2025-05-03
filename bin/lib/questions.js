@@ -35,7 +35,11 @@ const extrasQuestions = {
   format: (choices) => choices.map((choice) => colors.selected(choice)),
 }
 
+// default questions:
+// project name (different than project location, first question)
+// template type (select) [react, nextjs, svelte, etc.] [tanstack and redux] [aceite-front e aceite-back]
 const infraQuestions = [
+  // questions: aws region, bucket name, domain name, subdomain
   {
     type: 'text',
     name: 'awsRegion',
@@ -63,6 +67,7 @@ const infraQuestions = [
 ]
 
 const ciQuestions = [
+  // questions: aws region and bucket name
   {
     type: 'confirm',
     name: 'deployTerraform',
@@ -71,7 +76,7 @@ const ciQuestions = [
   },
   {
     type: (prev) => (prev ? 'text' : null),
-    name: 'awsRoleArn',
+    name: 'Aws region',
     message: '🔐 CI AWS Role ARN:',
   },
   {
