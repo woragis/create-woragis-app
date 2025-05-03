@@ -1,4 +1,7 @@
-function copyRecursiveSyncWithTemplating(src, dest, variables) {
+const fs = require('fs')
+const path = require('path')
+
+function copyRecursiveDynamic(src, dest, variables) {
   const entries = fs.readdirSync(src, { withFileTypes: true })
   fs.mkdirSync(dest, { recursive: true })
 
@@ -17,12 +20,12 @@ function copyRecursiveSyncWithTemplating(src, dest, variables) {
     const destPath = path.join(dest, finalName)
 
     if (entry.isDirectory()) {
-      copyRecursiveSyncWithTemplating(srcPath, destPath, variables)
+      copyRecursiveDynamic(srcPath, destPath, variables)
     } else {
       if (isTemplateFile) {
         let content = fs.readFileSync(srcPath, 'utf8')
         content = content.replace(
-          /{{\s*(\w+)\s*}}/g,
+          /__\s*(\w+)\s*__/g,
           (_, key) => variables[key] || ''
         )
         fs.writeFileSync(destPath, content)
@@ -58,7 +61,7 @@ function copyTemplate({ templatePath, outputPath, variables = {} }) {
   }
 
   if (fs.existsSync(dynamicPath)) {
-    copyRecursiveSyncWithTemplating(dynamicPath, outputPath, variables)
+    copyRecursiveDynamic(dynamicPath, outputPath, variables)
   }
 }
 
