@@ -10,6 +10,8 @@ const {
   infraQuestions,
   ciQuestions,
   confirmQuestion,
+  aceiteFrontendQuestions,
+  aceiteBackendQuestions,
 } = require('./lib/questions')
 const colors = require('./lib/colors')
 const { copyTemplate, copyRecursiveDynamic } = require('./lib/copy')
@@ -47,6 +49,19 @@ async function run() {
   if (extras.includes('ci') && !extras.includes('infra')) {
     const ciAnswers = await prompts(ciQuestions)
     Object.assign(answers, ciAnswers)
+  }
+
+  // 'lizardti.com' questions
+  // Frontend
+  if (answers.projectType === 'lizardti-aceite-front') {
+    const aceiteFrontendAnswers = await prompts(aceiteFrontendQuestions)
+    Object.assign(answers, aceiteFrontendQuestions)
+  }
+
+  // Backend
+  if (answers.projectType === 'lizardti-aceite-back') {
+    const aceiteBackendAnswers = await prompts(aceiteBackendQuestions)
+    Object.assign(answers, aceiteBackendQuestions)
   }
 
   // Confirmation

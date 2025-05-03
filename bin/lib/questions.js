@@ -99,10 +99,54 @@ const confirmQuestion = (projectName, projectType) => ({
   ),
 })
 
+const aceiteBackendQuestions = [
+  {
+    type: 'text',
+    name: 'tableName',
+    message: colors.primary('📦 DynamoDB table name:'),
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Table name is required.'),
+  },
+  {
+    type: 'text',
+    name: 'userPoolId',
+    message: colors.primary('👥 Cognito User Pool ID:'),
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ User Pool ID is required.'),
+  },
+  {
+    type: 'text',
+    name: 'clientId',
+    message: colors.primary('🆔 Cognito Client ID:'),
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Client ID is required.'),
+  },
+  {
+    type: 'text',
+    name: 'clientSecret',
+    message: colors.primary('🧪 Cognito Client Secret:'),
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Client secret is required.'),
+  },
+]
+
+const aceiteFrontendQuestions = [
+  {
+    type: 'text',
+    name: 'viteBackendUrl',
+    message: colors.primary('🔗 Vite backend URL:'),
+    initial: 'http://localhost:8000',
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Backend URL is required.'),
+  },
+]
+
 module.exports = {
   baseQuestions,
   extrasQuestions,
   infraQuestions,
   ciQuestions,
   confirmQuestion,
+  aceiteBackendQuestions,
+  aceiteFrontendQuestions,
 }
