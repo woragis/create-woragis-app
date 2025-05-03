@@ -56,7 +56,6 @@ function copyRecursiveStatic(src, dest) {
 }
 
 function copyTemplate({ templatePath, outputPath, variables = {} }) {
-  console.log('Variables: ', variables)
   const staticPath = path.join(templatePath, 'static')
   const dynamicPath = path.join(templatePath, 'dynamic')
 
