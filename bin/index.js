@@ -17,6 +17,7 @@ const colors = require('./lib/colors')
 const { copyTemplate, copyRecursiveDynamic } = require('./lib/copy')
 const templates = require('./lib/templates')
 const ora = require('ora').default
+const { initGitRepo } = require('./lib/git')
 
 // Custom spinner style
 const spinnerStyle = {
@@ -187,6 +188,7 @@ async function run() {
 
     // Success message
     spinner.succeed(colors.success(`🎉 Project created at ${projectPath}`))
+    initGitRepo(projectPath)
 
     // Summary of added features
     if (includeCI) console.log(colors.success('✔ Added CI (GitHub Actions)'))
