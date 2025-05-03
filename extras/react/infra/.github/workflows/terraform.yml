@@ -2,11 +2,7 @@ name: Terraform Deploy to AWS
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   terraform:
@@ -36,26 +32,20 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+      - name: Deploy with Terraform Static
+        uses: woragis/terraform-static@v1
+        with:
+          project-name: ${{ vars.PROJECT_NAME }}
+          project-type: ${{ vars.PROJECT_TYPE }}
+          terraform-dir: './terraform' # Path to the Terraform directory
+          aws-region: ${{ vars.AWS_REGION }}
+          domain-name: ${{ vars.DOMAIN_NAME }}
+          subdomain: ${{ vars.SUBDOMAIN }}
+          bucket-name: ${{ vars.BUCKET_NAME }}
+          environment: 'prod'
+          create-zone: 'false'
 
-      - name: 🧱 Terraform Init
-        run: terraform init
-
-      - name: 🔍 Terraform Validate
-        run: terraform validate
-
-      - name: 📐 Terraform Plan
-        run: |
-          terraform plan -out=tfplan \
-          -var="aws_region=${{ vars.AWS_REGION }}" \
-          -var="domain_name=${{ vars.DOMAIN_NAME }}" \
-          -var="subdomain=${{ vars.SUBDOMAIN }}" \
-          -var="bucket_name=${{ vars.BUCKET_NAME }}" \
-          -var='tags={"Name"="${{ vars.PROJECT_NAME }}", "ManagedBy"="Terraform", "Project"="ReactApp"}'
-
-      - name: 🚀 Terraform Apply
-        run: terraform apply -auto-approve tfplan
-
-      # Cleanup step if any step fails
-      - name: 💥 Terraform Destroy (if any previous step fails)
-        if: failure() # Only run if previous steps fail
-        run: terraform destroy -auto-approve
+      # - name: Output S3 Bucket and Website Endpoint
+      #   run: |
+      #     echo "S3 Bucket Name: ${{ steps.deploy.outputs.s3_bucket_name }}"
+      #     echo "Website Endpoint: ${{ steps.deploy.outputs.website_endpoint }}"
