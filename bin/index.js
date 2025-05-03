@@ -43,6 +43,23 @@ const templates = [
   },
 ]
 
+const baseQuestions = [
+  {
+    type: 'text',
+    name: 'projectName',
+    message: '📛 Project name:',
+  },
+  {
+    type: 'select',
+    name: 'projectType',
+    message: '🧱 Template type:',
+    choices: templates.map((template) => ({
+      name: template.name,
+      value: template.value,
+    })),
+  },
+]
+
 // Welcome banner
 console.log(
   colors.primary(`
