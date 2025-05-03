@@ -119,13 +119,24 @@ async function run() {
     text: colors.primary('Initializing project...'),
     ...spinnerStyle,
   }).start()
-
+  const variables = {
+    projectName,
+    projectType: selectedTemplate,
+    bucketName: `${projectName}-bucket`,
+    awsRegion: 'us-east-1',
+    domainName: 'example.com',
+    subdomain: 'www',
+  }
   try {
     // Step 1: Create project directory and copy template
     spinner.text = colors.primary('📂 Creating project directory...')
     fs.mkdirSync(projectPath, { recursive: true })
     spinner.text = colors.primary('📦 Copying template files...')
-    copyRecursiveSync(templatePath, projectPath)
+    copyTemplate({
+      templatePath,
+      outputPath: projectPath,
+      variables,
+    })
 
     const includeCI = extras.includes('ci')
     const includeInfra = extras.includes('infra')
@@ -135,8 +146,9 @@ async function run() {
       const terraformPath = path.join(extrasBasePath, 'infra', 'terraform')
       if (fs.existsSync(terraformPath)) {
         spinner.text = colors.primary('🏗️ Adding Terraform infrastructure...')
-        copyRecursiveSync(terraformPath, path.join(projectPath, 'terraform'), {
-          recursive: true,
+        copyTemplate({
+          terraformPath,
+          outputPath: path.join(projectPath, 'terraform'),
         })
       } else {
         spinner.warn(
@@ -178,7 +190,11 @@ async function run() {
         spinner.text = colors.primary('🔧 Adding CI workflow...')
         const workflowsPath = path.join(projectPath, '.github', 'workflows')
         fs.mkdirSync(workflowsPath, { recursive: true })
-        fs.cpSync(ciPath, path.join(workflowsPath, 'ci.yml'))
+        copyTemplate({
+          ciPath,
+          outputPath: path.join(workflowsPath, 'ci.yml'),
+          variables,
+        })
       } else {
         spinner.warn(colors.warning(`⚠️ No CI file found for "${extrasKey}"`))
       }
@@ -209,20 +225,67 @@ async function run() {
   }
 }
 
-function copyRecursiveSync(src, dest) {
+function copyRecursiveSyncWithTemplating(src, dest, variables) {
   const entries = fs.readdirSync(src, { withFileTypes: true })
-
   fs.mkdirSync(dest, { recursive: true })
 
-  for (let entry of entries) {
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name)
+
+    // Replace placeholders in file/folder names (e.g., __projectName__)
+    const replacedName = entry.name.replace(
+      /__([a-zA-Z0-9_]+)__/g,
+      (_, key) => variables[key] || key
+    )
+    const isTemplateFile = replacedName.endsWith('.tmpl')
+    const finalName = isTemplateFile
+      ? replacedName.replace(/\.tmpl$/, '')
+      : replacedName
+    const destPath = path.join(dest, finalName)
+
+    if (entry.isDirectory()) {
+      copyRecursiveSyncWithTemplating(srcPath, destPath, variables)
+    } else {
+      if (isTemplateFile) {
+        let content = fs.readFileSync(srcPath, 'utf8')
+        content = content.replace(
+          /{{\s*(\w+)\s*}}/g,
+          (_, key) => variables[key] || ''
+        )
+        fs.writeFileSync(destPath, content)
+      } else {
+        fs.copyFileSync(srcPath, destPath)
+      }
+    }
+  }
+}
+
+function copyRecursiveStatic(src, dest) {
+  const entries = fs.readdirSync(src, { withFileTypes: true })
+  fs.mkdirSync(dest, { recursive: true })
+
+  for (const entry of entries) {
     const srcPath = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
 
     if (entry.isDirectory()) {
-      copyRecursiveSync(srcPath, destPath)
+      copyRecursiveStatic(srcPath, destPath)
     } else {
       fs.copyFileSync(srcPath, destPath)
     }
+  }
+}
+
+export function copyTemplate({ templatePath, outputPath, variables = {} }) {
+  const staticPath = path.join(templatePath, 'static')
+  const dynamicPath = path.join(templatePath, 'dynamic')
+
+  if (fs.existsSync(staticPath)) {
+    copyRecursiveStatic(staticPath, outputPath)
+  }
+
+  if (fs.existsSync(dynamicPath)) {
+    copyRecursiveSyncWithTemplating(dynamicPath, outputPath, variables)
   }
 }
 
