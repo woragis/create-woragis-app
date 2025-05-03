@@ -83,6 +83,53 @@ const baseQuestions = [
   // },
 ]
 
+const infraQuestions = [
+  {
+    type: 'text',
+    name: 'awsRegion',
+    message: '🌍 AWS region:',
+    initial: 'us-east-1',
+  },
+  {
+    type: 'text',
+    name: 'bucketName',
+    message: '🪣 S3 bucket name:',
+    initial: (prev, answers) => `${answers.projectName}-bucket`,
+  },
+  {
+    type: 'text',
+    name: 'domainName',
+    message: '🌐 Root domain:',
+    initial: 'example.com',
+  },
+  {
+    type: 'text',
+    name: 'subdomain',
+    message: '🔧 Subdomain:',
+    initial: 'www',
+  },
+]
+
+const ciQuestions = [
+  {
+    type: 'confirm',
+    name: 'deployTerraform',
+    message: '🚀 Deploy Terraform from CI?',
+    initial: true,
+  },
+  {
+    type: (prev) => (prev ? 'text' : null),
+    name: 'awsRoleArn',
+    message: '🔐 CI AWS Role ARN:',
+  },
+  {
+    type: 'confirm',
+    name: 'usePreviewEnvs',
+    message: '🧪 Use preview environments?',
+    initial: false,
+  },
+]
+
 // Welcome banner
 console.log(
   colors.primary(`
@@ -94,8 +141,9 @@ console.log(
 
 async function run() {
   // Project name prompt
-  const { projectName, projectType } = await prompts(baseQuestions)
-  const projectPath = path.resolve(process.cwd(), projectName)
+  const answers = await prompts(baseQuestions)
+
+  const projectPath = path.resolve(process.cwd(), answers.projectName)
 
   // Feature selection with custom selected item color
   const extras = await checkbox({
@@ -107,11 +155,21 @@ async function run() {
     format: (choices) => choices.map((choice) => colors.selected(choice)),
   })
 
+  if (extras.includes('infra')) {
+    const infraAnswers = await prompts(infraQuestions)
+    Object.assign(answers, infraAnswers)
+  }
+
+  if (extras.includes('ci')) {
+    const ciAnswers = await prompts(ciQuestions)
+    Object.assign(answers, ciAnswers)
+  }
+
   // Confirmation
   const confirmed = await confirm({
     message: colors.primary(
-      `🚀 Create "${colors.highlight(projectName)}" with ${colors.info(
-        projectType
+      `🚀 Create "${colors.highlight(answers.projectName)}" with ${colors.info(
+        answers.projectType
       )} template?`
     ),
   })
@@ -122,13 +180,22 @@ async function run() {
   }
 
   // Find the selected template's extras
-  const selectedTemplateConfig = templates.find((t) => t.value === projectType)
+  const selectedTemplateConfig = templates.find(
+    (t) => t.value === answers.projectType
+  )
   const extrasKey = selectedTemplateConfig.extras
-  const templatePath = path.join(__dirname, '..', 'templates', projectType)
+  const templatePath = path.join(
+    __dirname,
+    '..',
+    'templates',
+    answers.projectType
+  )
   const extrasBasePath = path.join(__dirname, '..', 'extras', extrasKey)
 
   if (!fs.existsSync(templatePath)) {
-    console.error(colors.error(`❌ Template "${projectType}" not found.`))
+    console.error(
+      colors.error(`❌ Template "${answers.projectType}" not found.`)
+    )
     process.exit(1)
   }
 
@@ -138,9 +205,9 @@ async function run() {
     ...spinnerStyle,
   }).start()
   const variables = {
-    projectName,
-    projectType: projectType,
-    bucketName: `${projectName}-bucket`,
+    projectName: answers.projectName,
+    projectType: answers.projectType,
+    bucketName: `${answers.projectName}-bucket`,
     awsRegion: 'us-east-1',
     domainName: 'example.com',
     subdomain: 'www',
@@ -232,7 +299,7 @@ async function run() {
   ╔═══════════════════════╗
   ║   Next Steps          ║
   ╚═══════════════════════╝
-  ${colors.highlight(`cd ${projectName}`)}
+  ${colors.highlight(`cd ${answers.projectName}`)}
   ${colors.highlight('npm install')}  ${colors.info('# or yarn install')}
   ${colors.highlight('npm run dev')}   ${colors.info('# or yarn dev')}
       `)
