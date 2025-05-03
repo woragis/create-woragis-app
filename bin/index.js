@@ -2,7 +2,8 @@
 
 const fs = require('fs')
 const path = require('path')
-const { input, select, confirm, checkbox } = require('@inquirer/prompts')
+const { confirm, checkbox } = require('@inquirer/prompts')
+const prompts = require('prompts')
 const chalk = require('chalk').default
 const ora = require('ora').default
 
@@ -44,20 +45,42 @@ const templates = [
 ]
 
 const baseQuestions = [
+  // First question: Project name
   {
     type: 'text',
     name: 'projectName',
-    message: '📛 Project name:',
+    message: colors.primary('📛 Project name:'),
+    initial: 'my-project',
+    validate: (input) => {
+      if (input.trim() === '') {
+        return colors.error("Project name can't be empty!")
+      }
+      return true
+    },
   },
+  // Second question: Project type
   {
     type: 'select',
     name: 'projectType',
-    message: '🧱 Template type:',
+    message: colors.primary('🧱 Template type:'),
     choices: templates.map((template) => ({
-      name: template.name,
+      title: colors.info(template.name),
       value: template.value,
     })),
   },
+  // Third question: Extras
+  // {
+  //   type: 'multiselect',
+  //   name: 'extras',
+  //   message: colors.primary('🔧 Select additional features:'),
+  //   choices: [
+  //     { name: colors.info('CI (GitHub Actions)'), value: 'ci' },
+  //     { name: colors.info('Terraform Infrastructure'), value: 'infra' },
+  //   ],
+  //   initial: ['ci', 'infra'], // ✅ default selected extras
+  //   instructions: false,
+  //   format: (choices) => choices.map((choice) => colors.selected(choice)),
+  // },
 ]
 
 // Welcome banner
@@ -71,28 +94,8 @@ console.log(
 
 async function run() {
   // Project name prompt
-  const projectName = await input({
-    message: colors.primary('📋 Enter your project name:'),
-    default: 'my-project',
-    validate: (input) => {
-      if (input.trim() === '') {
-        return colors.error("Project name can't be empty!")
-      }
-      return true
-    },
-  })
+  const { projectName, projectType } = await prompts(baseQuestions)
   const projectPath = path.resolve(process.cwd(), projectName)
-
-  // Template selection with custom selected item color
-  const selectedTemplate = await select({
-    message: colors.primary('🛠️ Select a template:'),
-    choices: templates.map((template) => ({
-      name: colors.info(template.name),
-      value: template.value,
-      description: colors.highlight(`Create a ${template.name} project`),
-    })),
-    format: (choice) => colors.selected(choice),
-  })
 
   // Feature selection with custom selected item color
   const extras = await checkbox({
@@ -108,7 +111,7 @@ async function run() {
   const confirmed = await confirm({
     message: colors.primary(
       `🚀 Create "${colors.highlight(projectName)}" with ${colors.info(
-        selectedTemplate
+        projectType
       )} template?`
     ),
   })
@@ -119,15 +122,13 @@ async function run() {
   }
 
   // Find the selected template's extras
-  const selectedTemplateConfig = templates.find(
-    (t) => t.value === selectedTemplate
-  )
+  const selectedTemplateConfig = templates.find((t) => t.value === projectType)
   const extrasKey = selectedTemplateConfig.extras
-  const templatePath = path.join(__dirname, '..', 'templates', selectedTemplate)
+  const templatePath = path.join(__dirname, '..', 'templates', projectType)
   const extrasBasePath = path.join(__dirname, '..', 'extras', extrasKey)
 
   if (!fs.existsSync(templatePath)) {
-    console.error(colors.error(`❌ Template "${selectedTemplate}" not found.`))
+    console.error(colors.error(`❌ Template "${projectType}" not found.`))
     process.exit(1)
   }
 
@@ -138,7 +139,7 @@ async function run() {
   }).start()
   const variables = {
     projectName,
-    projectType: selectedTemplate,
+    projectType: projectType,
     bucketName: `${projectName}-bucket`,
     awsRegion: 'us-east-1',
     domainName: 'example.com',
@@ -293,7 +294,7 @@ function copyRecursiveStatic(src, dest) {
   }
 }
 
-export function copyTemplate({ templatePath, outputPath, variables = {} }) {
+function copyTemplate({ templatePath, outputPath, variables = {} }) {
   const staticPath = path.join(templatePath, 'static')
   const dynamicPath = path.join(templatePath, 'dynamic')
 
