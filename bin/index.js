@@ -41,27 +41,43 @@ async function run() {
 
   const extras = await checkbox(extrasQuestions)
 
+  let variables = {
+    projectName: answers.projectName,
+    projectType: answers.projectType,
+  }
+
   if (extras.includes('infra')) {
     const infraAnswers = await prompts(infraQuestions)
     Object.assign(answers, infraAnswers)
+    variables.bucketName = answers.bucketName
+    variables.awsRegion = answers.awsRegion
+    variables.domainName = answers.domainName
+    variables.subdomain = answers.subdomain
   }
 
   if (extras.includes('ci') && !extras.includes('infra')) {
     const ciAnswers = await prompts(ciQuestions)
     Object.assign(answers, ciAnswers)
+    variables.bucketName = answers.bucketName
+    variables.awsRegion = answers.awsRegion
   }
 
   // 'lizardti.com' questions
   // Frontend
   if (answers.projectType === 'lizardti-aceite-front') {
     const aceiteFrontendAnswers = await prompts(aceiteFrontendQuestions)
-    Object.assign(answers, aceiteFrontendQuestions)
+    Object.assign(answers, aceiteFrontendAnswers)
+    variables.viteBackendUrl = answers.viteBackendUrl
   }
 
   // Backend
   if (answers.projectType === 'lizardti-aceite-back') {
     const aceiteBackendAnswers = await prompts(aceiteBackendQuestions)
-    Object.assign(answers, aceiteBackendQuestions)
+    Object.assign(answers, aceiteBackendAnswers)
+    variables.tableName = answers.tableName
+    variables.userPoolId = answers.userPoolId
+    variables.clientId = answers.clientId
+    variables.clientSecret = answers.clientSecret
   }
 
   // Confirmation
@@ -99,14 +115,7 @@ async function run() {
     text: colors.primary('Initializing project...'),
     ...spinnerStyle,
   }).start()
-  const variables = {
-    projectName: answers.projectName,
-    projectType: answers.projectType,
-    bucketName: `${answers.projectName}-bucket`,
-    awsRegion: 'us-east-1',
-    domainName: 'example.com',
-    subdomain: 'www',
-  }
+
   try {
     // Step 1: Create project directory and copy template
     spinner.text = colors.primary('📂 Creating project directory...')
@@ -123,8 +132,6 @@ async function run() {
 
     // Step 2: Add Terraform infrastructure
     if (includeInfra && fs.existsSync(extrasBasePath)) {
-      console.log('extrasBasePath', extrasBasePath)
-
       const infraPath = path.join(extrasBasePath, 'infra', 'terraform')
 
       if (fs.existsSync(infraPath)) {
