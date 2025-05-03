@@ -44,7 +44,7 @@ async function run() {
     Object.assign(answers, infraAnswers)
   }
 
-  if (extras.includes('ci')) {
+  if (extras.includes('ci') && !extras.includes('infra')) {
     const ciAnswers = await prompts(ciQuestions)
     Object.assign(answers, ciAnswers)
   }

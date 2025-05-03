@@ -5,11 +5,11 @@ const baseQuestions = [
   {
     type: 'text',
     name: 'projectName',
-    message: colors.primary('📛 Project name:'),
+    message: colors.primary('📛 What is your project’s name?'),
     initial: 'my-project',
     validate: (input) => {
       if (input.trim() === '') {
-        return colors.error("Project name can't be empty!")
+        return colors.error("⚠️ Project name can't be empty!")
       }
       return true
     },
@@ -17,7 +17,7 @@ const baseQuestions = [
   {
     type: 'select',
     name: 'projectType',
-    message: colors.primary('🧱 Template type:'),
+    message: colors.primary('🧱 Choose a template:'),
     choices: templates.map((template) => ({
       title: colors.info(template.name),
       value: template.value,
@@ -27,63 +27,67 @@ const baseQuestions = [
 ]
 
 const extrasQuestions = {
-  message: colors.primary('🔧 Select additional features:'),
+  message: colors.primary('🛠️ What extra features do you want?'),
   choices: [
-    { name: colors.info('CI (GitHub Actions)'), value: 'ci' },
-    { name: colors.info('Terraform Infrastructure'), value: 'infra' },
+    { name: colors.info('🔄 CI (GitHub Actions)'), value: 'ci' },
+    { name: colors.info('🏗️ Terraform Infrastructure'), value: 'infra' },
   ],
   format: (choices) => choices.map((choice) => colors.selected(choice)),
 }
 
-// default questions:
-// project name (different than project location, first question)
-// template type (select) [react, nextjs, svelte, etc.] [tanstack and redux] [aceite-front e aceite-back]
 const infraQuestions = [
-  // questions: aws region, bucket name, domain name, subdomain
   {
     type: 'text',
     name: 'awsRegion',
-    message: '🌍 AWS region:',
+    message: colors.primary('🌍 Which AWS region to deploy to?'),
     initial: 'us-east-1',
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ AWS region is required'),
   },
   {
     type: 'text',
     name: 'bucketName',
-    message: '🪣 S3 bucket name:',
+    message: colors.primary('🪣 S3 Bucket name for hosting:'),
     initial: (prev, answers) => `${answers.projectName}-bucket`,
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Bucket name is required'),
   },
   {
     type: 'text',
     name: 'domainName',
-    message: '🌐 Root domain:',
+    message: colors.primary('🌐 Root domain (e.g., example.com):'),
     initial: 'example.com',
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Domain name is required'),
   },
   {
     type: 'text',
     name: 'subdomain',
-    message: '🔧 Subdomain:',
+    message: colors.primary('🔧 Subdomain (e.g., www):'),
     initial: 'www',
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Subdomain is required'),
   },
 ]
 
 const ciQuestions = [
-  // questions: aws region and bucket name
   {
-    type: 'confirm',
-    name: 'deployTerraform',
-    message: '🚀 Deploy Terraform from CI?',
-    initial: true,
+    type: 'text',
+    name: 'awsRegion',
+    message: colors.primary('🌍 CI AWS region:'),
+    initial: 'us-east-1',
+    skip: (prev, answers) => answers.selectedExtras?.includes('infra'),
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ AWS region is required'),
   },
   {
-    type: (prev) => (prev ? 'text' : null),
-    name: 'Aws region',
-    message: '🔐 CI AWS Role ARN:',
-  },
-  {
-    type: 'confirm',
-    name: 'usePreviewEnvs',
-    message: '🧪 Use preview environments?',
-    initial: false,
+    type: 'text',
+    name: 'bucketName',
+    message: colors.primary('🪣 CI S3 bucket name:'),
+    initial: (prev, answers) => `${answers.projectName}-bucket`,
+    skip: (prev, answers) => answers.selectedExtras?.includes('infra'),
+    validate: (input) =>
+      input.trim() !== '' || colors.error('⚠️ Bucket name is required'),
   },
 ]
 
