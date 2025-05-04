@@ -2,19 +2,22 @@
 
 - [x] - Adicionar Extras aos comandos
 - [x] - Adicionar novas templates ao Bin
+- [x] - Adicionar Git
+- [ ] - Adicionar Npm install de dependencias
+- [ ] - Adicionar Testes
 
 # Extras
 
 - [ ] - Ajeitar Actions CI
-  - [ ] - React
+  - [x] - React
   - [ ] - Next
   - [ ] - Svelte
 - [ ] - Ajeitar Actions Infra
-  - [ ] - React
+  - [x] - React
   - [ ] - Next
   - [ ] - Svelte
 - [ ] - Ajeitar Terraform Infra
-  - [ ] - React
+  - [x] - React
   - [ ] - Next
   - [ ] - Svelte
 - [ ] - Testar actions com terraform
@@ -35,8 +38,6 @@
 
 ## LizardTi.com
 
-- [ ] - Remover variaveis .env
-- [ ] - Adicionar Telas de aviso e congelamento caso o .env nao tenha sido 'setado'
 - [x] - Upgrade Packages
   - [x] - Styles (styled-components -> @emotion)
   - [x] - Router (react-router-dom -> @tanstack/react-router)
