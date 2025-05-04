@@ -5,6 +5,17 @@ function copyRecursiveDynamic({ templatePath, outputPath, variables }) {
   const entries = fs.readdirSync(templatePath, { withFileTypes: true })
   fs.mkdirSync(outputPath, { recursive: true })
 
+  const textExtensions = [
+    '.yml',
+    '.yaml',
+    '.tf',
+    '.json',
+    '.js',
+    '.ts',
+    '.md',
+    '.txt',
+  ]
+
   for (const entry of entries) {
     const srcPath = path.join(templatePath, entry.name)
 
@@ -13,6 +24,9 @@ function copyRecursiveDynamic({ templatePath, outputPath, variables }) {
       (_, key) => variables[key] || key
     )
     const isTemplateFile = replacedName.endsWith('.tmpl')
+    const ext = path.extname(replacedName)
+    const isTextFile = textExtensions.includes(ext)
+
     const finalName = isTemplateFile
       ? replacedName.replace(/\.tmpl$/, '')
       : replacedName
@@ -25,12 +39,14 @@ function copyRecursiveDynamic({ templatePath, outputPath, variables }) {
         variables,
       })
     } else {
-      if (isTemplateFile) {
+      if (isTemplateFile || isTextFile) {
         let content = fs.readFileSync(srcPath, 'utf8')
-        content = content.replace(
-          /__\s*(\w+)\s*__/g,
-          (_, key) => variables[key] || ''
-        )
+        content = content.replace(/__\s*(\w+)\s*__/g, (_, key) => {
+          if (variables[key] === undefined) {
+            console.warn(`⚠️ Warning: variable "${key}" is missing`)
+          }
+          return variables[key] || ''
+        })
         fs.writeFileSync(destPath, content)
       } else {
         fs.copyFileSync(srcPath, destPath)
