@@ -10,6 +10,7 @@ import logo from '@/assets/logo_lizard.png'
 import aciona from '@/assets/unnamed.png'
 import mondial from '@/assets/mondial.png'
 import juvo from '@/assets/logo_nova.png'
+import notro from '@/assets/notro.png'
 import { Plataforma } from '@/types/servicesType'
 import { IconButton } from '@mui/material'
 import CityModal from '@/components/modalConfigCity'
@@ -406,9 +407,12 @@ export const InicialPageView = (props: ReturnType<typeof useInicialPage>) => {
                     <div className="w-16 h-16 flex justify-center items-center">
                       <img
                         src={
-                          (plataforma.plataforma === 'JUVO' && juvo) ||
-                          (plataforma.plataforma === 'ACIONA' && aciona) ||
-                          (plataforma.plataforma === 'MONDIAL' && mondial) ||
+                          (plataforma.plataforma.includes('JUVO') && juvo) ||
+                          (plataforma.plataforma.includes('ACIONA') &&
+                            aciona) ||
+                          (plataforma.plataforma.includes('MONDIAL') &&
+                            mondial) ||
+                          (plataforma.plataforma.includes('NOTRO') && notro) ||
                           ''
                         }
                         alt={plataforma.plataforma}
