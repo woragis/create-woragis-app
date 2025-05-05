@@ -5,6 +5,7 @@
 - [x] - Adicionar Git
 - [ ] - Adicionar Npm install de dependencias
 - [ ] - Adicionar Testes
+- [ ] - Atualizar aparencia, com base em: Next, vite, create-react-app
 
 # Extras
 
