@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start:offline": "nodemon --exec 'sls offline start'"
+    "start:offline": "nodemon --exec 'sls offline start'",
+    "deploy": "serverless deploy > serverless-output.txt 2>&1"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.744.0",
